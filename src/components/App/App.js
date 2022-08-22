@@ -31,7 +31,7 @@ export default function App() {
    };
 
    const visibleContacts = contacts.filter(contact =>
-      contact.name.toLocaleLowerCase().includes(filterCont.toLocaleLowerCase())
+      contact.name.toLowerCase().includes(filterCont.toLowerCase())
    );
 
    return (

@@ -34,8 +34,7 @@ export default function ContactForm({ onSubmit, checkNewContact }) {
       if (
          this.props.visibleContacts.find(
             contact =>
-               contact.name.toLocaleLowerCase() ===
-               newContact.name.toLocaleLowerCase()
+               contact.name.toLowerCase() === newContact.name.toLowerCase()
          )
       ) {
          alert(newContact.name + ' is alredy in contacts');
