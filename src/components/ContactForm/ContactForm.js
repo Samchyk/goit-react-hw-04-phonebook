@@ -1,56 +1,46 @@
-import { useState } from 'react';
-import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../Redux/contacts/contact-actions';
+import { getContacts } from '../../Redux/contacts/contact-selectors';
 import s from './ContactForm.module.css';
 
-const INITIALE_STATE = {
-   name: '',
-   number: '',
-};
 
-export default function ContactForm({ onSubmit, checkNewContact }) {
-   const [{ name, number }, setState] = useState(INITIALE_STATE);
+export default function ContactForm() {
+   const [name, setName] = useState('');
+   const [number, setNumber] = useState('');
+   const contacts = useSelector(getContacts);
+   const dispatch = useDispatch();
 
-   const onChange = e => {
-      const { name, value } = e.target;
-      setState(prev => ({ ...prev, [name]: value }));
-   };
+   useEffect(() => {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+   }, [contacts]);
 
    const onSubmitForm = e => {
       e.preventDefault();
-      const newContact = {
-         id: nanoid(5),
-         name,
-         number,
-      };
-      if (checkNewContact(newContact)) {
-         return;
-      }
-      onSubmit(newContact);
-      setState(INITIALE_STATE);
-   };
-
-   checkNewContact = newContact => {
       if (
-         this.props.visibleContacts.find(
+         contacts.find(
             contact =>
-               contact.name.toLowerCase() === newContact.name.toLowerCase()
+               contact.name.toLocaleLowerCase() === name.toLocaleLowerCase()
          )
       ) {
-         alert(newContact.name + ' is alredy in contacts');
-         return true;
+         alert(name + ' is alredy in contacts');
+         return;
       }
-      return false;
+      dispatch(addContact(name, number));
+      setName('');
+      setNumber('');
    };
+
    return (
       <form className={s.form} onSubmit={onSubmitForm}>
          <label className={s.label}>
             Name
             <input
-               onChange={onChange}
+               onChange={e => setName(e.target.value)}
                type="text"
                name="name"
                value={name}
+               placeholder="Name Lastname"
                pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
                title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
                required
@@ -59,21 +49,19 @@ export default function ContactForm({ onSubmit, checkNewContact }) {
          <label className={s.label}>
             Number
             <input
-               onChange={onChange}
+               onChange={e => setNumber(e.target.value)}
                type="tel"
                name="number"
                value={number}
+               placeholder="XXX-XX-XX"
                pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
                title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
                required
             />
          </label>
-         <button type="submit">Add contact</button>
+         <div >
+            <button type="submit">Add contact</button>
+         </div>
       </form>
    );
 }
-
-ContactForm.propTypes = {
-   onSubmit: PropTypes.func.isRequired,
-   visibleContacts: PropTypes.func.isRequired,
-};
